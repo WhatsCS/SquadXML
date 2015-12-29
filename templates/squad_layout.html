@@ -1,0 +1,28 @@
+{% import 'admin/layout.html' as layout with context -%}
+{% extends 'squad_base.html' %}
+{% block head_tail %}
+    {{ super() }}
+{% endblock %}
+
+{% block page_body %}
+    <div class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            {% block brand %}
+                <a href="{{ url_for('index') }}">{{ admin_view.name|capitalize }}</a>
+            {% endblock %}
+            <!--<ul class="nav nav-pills nav-stacked">
+                    {{ layout.menu() }}
+                    {{ layout.menu_links() }}
+                </ul>-->
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div id="content" class="row">
+            {{ layout.messages() }}
+
+            {% set render_ctx = h.resolve_ctx() %}
+
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
