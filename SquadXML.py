@@ -13,12 +13,13 @@ be able to add in users and delete users.
 9. Publish under /squad/squad.xml;/squad/squad.dtd
 10. If I have time and aren't a lazy bum I'll make a restful api but atm idgaf
 """
-from flask import Flask, url_for, redirect, render_template, request, abort
+import os
+from flask import Flask, url_for, redirect, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 import flask_login as login
 
 from wtforms import form, fields, validators
-from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 import flask_admin as admin
 from flask_admin import BaseView, helpers, expose
@@ -36,20 +37,6 @@ class Admins(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
-
-
-
-# NO FLASK-LOGIN AND ADMIN SHIT IN THIS CLASS GOD DAMNIT
-class User(db.Model):
-
-    # TODO: figure out how to have a bool for is_admin
-    id = db.Column(db.Integer, primary_key=True)
-    player_id = db.Column(db.Integer)
-    nick = db.Column(db.String(100), unique=True)
-    name = db.Column(db.String(100))
-    email = db.Column(db.String(100))
-    icq = db.Column(db.Integer)
-    remark = db.Column(db.String(128))
 
     # Flask-Login integration
     def is_authenticated(self):
@@ -69,6 +56,19 @@ class User(db.Model):
         return self.username
 
 
+
+# NO FLASK-LOGIN AND ADMIN SHIT IN THIS CLASS GOD DAMNIT
+class User(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    player_id = db.Column(db.Integer)
+    nick = db.Column(db.String(100), unique=True)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(100))
+    icq = db.Column(db.Integer)
+    remark = db.Column(db.String(128))
+
+
 # Define login forms
 class LoginForm(form.Form):
 
@@ -81,15 +81,12 @@ class LoginForm(form.Form):
         if user is None:
             raise validators.ValidationError('Invalid User')
 
-        #if user.is_admin is False:
-        #    raise validators.ValidationError('User not admin')
-
         # compare plaintext to hashed version
         if not check_password_hash(user.password, self.password.data):
             raise validators.ValidationError('Invalid Password')
 
     def get_user(self):
-        return app.config['USERNAME']
+        return db.session.query(Admins).filter_by(username=self.login.data).first()
 
 
 # Initialize flask-login
@@ -100,7 +97,7 @@ def init_login():
     # Create user loader function
     @login_manager.user_loader
     def load_user(user_id):
-        return db.session.query(User).get(user_id)
+        return db.session.query(Admins).get(user_id)
 
 
 # Create customized model view class
@@ -162,5 +159,49 @@ admin = admin.Admin(app,
                     template_mode='bootstrap3'
                     )
 
+admin.add_view(MyModelView(Admins, db.session))
+admin.add_view(MyModelView(User, db.session))
+
+
+# TODO: Remove this before production
+def build_sample_db():
+    """
+    Populate a small db with some example entries.
+    """
+
+    db.drop_all()
+    db.create_all()
+    # passwords are hashed, to use plaintext passwords instead:
+    # test_user = User(login="test", password="test")
+    test_user = Admins(username="test", password=generate_password_hash("test"))
+    db.session.add(test_user)
+
+    name = [
+        'Harry', 'Amelia', 'Oliver', 'Jack', 'Isabella', 'Charlie','Sophie', 'Mia',
+        'Jacob', 'Thomas', 'Emily', 'Lily', 'Ava', 'Isla', 'Alfie', 'Olivia', 'Jessica',
+        'Riley', 'William', 'James', 'Geoffrey', 'Lisa', 'Benjamin', 'Stacey', 'Lucy'
+    ]
+    nick = [
+        'Brown', 'Smith', 'Patel', 'Jones', 'Williams', 'Johnson', 'Taylor', 'Thomas',
+        'Roberts', 'Khan', 'Lewis', 'Jackson', 'Clarke', 'James', 'Phillips', 'Wilson',
+        'Ali', 'Mason', 'Mitchell', 'Rose', 'Davis', 'Davies', 'Rodriguez', 'Cox', 'Alexander'
+    ]
+
+    for i in range(len(name)):
+        user = User()
+        user.name = name[i]
+        user.nick = nick[i]
+        db.session.add(user)
+
+    db.session.commit()
+    return
+
 if __name__ == '__main__':
+
+    # Build a sample db on the fly, if one does not exist yet.
+    app_dir = os.path.realpath(os.path.dirname(__file__))
+    database_path = os.path.join(app_dir, app.config['DATABASE_FILE'])
+    if not os.path.exists(database_path):
+        build_sample_db()
+
     app.run(debug=True)
