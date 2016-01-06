@@ -16,11 +16,9 @@
 <div class="navbar navbar-default navbar-static-top">
     <div class="container">
         <a href="{{ url_for('index') }}" class="navbar-brand">SquadXML</a>
-        {# {% if current_user.has_role('admin') %} #}
         <ul class="nav navbar-nav navbar-right">
             <li><a href="/admin/">Admin</a></li>
         </ul>
-        {# {% endif %} #}
     </div>
 </div>
 {% block content %}
