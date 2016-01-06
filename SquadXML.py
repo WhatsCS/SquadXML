@@ -71,7 +71,7 @@ class User(db.Model):
 # Define login forms
 class LoginForm(form.Form):
 
-    login = fields.StringField(validators=[validators.required()])
+    username = fields.StringField(validators=[validators.required()])
     password = fields.PasswordField(validators=[validators.required()])
 
     def validate_login(self, field):
@@ -85,7 +85,7 @@ class LoginForm(form.Form):
             raise validators.ValidationError('Invalid Password')
 
     def get_user(self):
-        return db.session.query(Admins).filter_by(username=self.login.data).first()
+        return db.session.query(Admins).filter_by(username=self.username.data).first()
 
 
 # Initialize flask-login
