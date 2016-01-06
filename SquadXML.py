@@ -56,7 +56,6 @@ class Admins(db.Model):
         return self.username
 
 
-
 # NO FLASK-LOGIN AND ADMIN SHIT IN THIS CLASS GOD DAMNIT
 class User(db.Model):
 
@@ -76,7 +75,7 @@ class LoginForm(form.Form):
     password = fields.PasswordField(validators=[validators.required()])
 
     def validate_login(self, field):
-        user = self.get_user
+        user = self.get_user()
 
         if user is None:
             raise validators.ValidationError('Invalid User')
@@ -153,9 +152,9 @@ class CustomView(ModelView):
 
 # Create admin with custom base template
 admin = admin.Admin(app,
-                    'SquadXML: Layout',
+                    'SquadXML',
                     index_view=SquadXMLIndexView(),
-                    base_template='layout.html',
+                    base_template='squad_layout.html',
                     template_mode='bootstrap3'
                     )
 
