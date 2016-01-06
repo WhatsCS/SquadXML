@@ -1,19 +1,19 @@
-{% import 'admin/layout.html' as layout with context -%}
 {% extends 'squad_base.html' %}
+{% import 'admin/layout.html' as layout with context -%}
 {% block head_tail %}
     {{ super() }}
 {% endblock %}
 
 {% block page_body %}
-    <div class="navbar navbar-default navbar-static-top">
-        <div class="container">
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container-fluid">
             {% block brand %}
-                <a href="{{ url_for('index') }}">{{ admin_view.name|capitalize }}</a>
+                <a href="{{ url_for('index') }}" class="navbar-brand">SquadXML</a>
             {% endblock %}
-            <!--<ul class="nav nav-pills nav-stacked">
+            <ul class="nav navbar-nav nav-pills nav-stacked">
                     {{ layout.menu() }}
                     {{ layout.menu_links() }}
-                </ul>-->
+                </ul>
         </div>
     </div>
     <div class="col-md-10">
