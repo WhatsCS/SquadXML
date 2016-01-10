@@ -14,7 +14,7 @@ be able to add in users and delete users.
 10. If I have time and aren't a lazy bum I'll make a restful api but atm idgaf
 """
 import os
-from flask import Flask, url_for, redirect, render_template, request
+from flask import Flask, url_for, redirect, render_template, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 import flask_login as login
 
@@ -22,9 +22,10 @@ from wtforms import form, fields, validators
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import flask_admin as admin
-from flask_admin import BaseView, helpers, expose
+from flask_admin import helpers, expose
 from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
+
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
@@ -35,7 +36,7 @@ db = SQLAlchemy(app)
 # PUT ADMIN STUFF IN HERE, IS ADMIN TABLE MAGIC
 class Admins(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True)
+    login = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
 
     # Flask-Login integration
@@ -64,14 +65,14 @@ class User(db.Model):
     nick = db.Column(db.String(100), unique=True)
     name = db.Column(db.String(100))
     email = db.Column(db.String(100))
-    icq = db.Column(db.Integer)
+    icq = db.Column(db.String(5))
     remark = db.Column(db.String(128))
 
 
 # Define login forms
 class LoginForm(form.Form):
 
-    username = fields.StringField(validators=[validators.required()])
+    login = fields.StringField(validators=[validators.required()])
     password = fields.PasswordField(validators=[validators.required()])
 
     def validate_login(self, field):
@@ -85,7 +86,7 @@ class LoginForm(form.Form):
             raise validators.ValidationError('Invalid Password')
 
     def get_user(self):
-        return db.session.query(Admins).filter_by(username=self.username.data).first()
+        return db.session.query(Admins).filter_by(login=self.login.data).first()
 
 
 # Initialize flask-login
@@ -105,6 +106,10 @@ class MyModelView(sqla.ModelView):
     def is_accessible(self):
         return login.current_user.is_authenticated
 
+    def inaccessible_callback(self, name, **kwargs):
+        # redirect to login page if user doesn't have access
+        return redirect(url_for('login', next=request.url))
+
 
 # Create the index view on admin for login
 class SquadXMLIndexView(admin.AdminIndexView):
@@ -115,7 +120,7 @@ class SquadXMLIndexView(admin.AdminIndexView):
             return redirect(url_for('.login_view'))
         return super(SquadXMLIndexView, self).index()
 
-    @expose('/login/', methods=('GET', 'POST'))
+    @expose('/login/', methods=['GET', 'POST'])
     def login_view(self):
         # handle user login
         form = LoginForm(request.form)
@@ -137,6 +142,17 @@ class SquadXMLIndexView(admin.AdminIndexView):
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/squad/squad.xml')
+def xml():
+    data = db.session.query(User).all()
+    squad_xml = render_template('xml/squad.xml', app=app, data=data)
+    response = make_response(squad_xml)
+    response.headers["Content-Type"] = "application/xml"
+
+    return response
+
 
 
 # Initialize Flask-Login
@@ -172,7 +188,7 @@ def build_sample_db():
     db.create_all()
     # passwords are hashed, to use plaintext passwords instead:
     # test_user = User(login="test", password="test")
-    test_user = Admins(username="test", password=generate_password_hash("test"))
+    test_user = Admins(login="test", password=generate_password_hash("test"))
     db.session.add(test_user)
 
     name = [
