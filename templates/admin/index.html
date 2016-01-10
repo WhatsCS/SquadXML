@@ -2,7 +2,7 @@
 {% block body %}
     {{ super() }}
     <div class="row-fluid">
-        <div class="container-fluid text-center">
+        <div class="container text-center">
             {% if current_user.is_authenticated %}
                 <h1>SquadXML Admin Page</h1>
                 <p>
@@ -10,7 +10,7 @@
                 </p>
             {% else %}
                 <h1>Admin Login</h1>
-                <form class="form-horizontal" method="POST" action="">
+                <form method="POST">
                     {{ form.hidden_tag() if form.hidden_tag }}
                     {% for f in form if f.type != 'CSRFTokenField' %}
                         <div class="form-group">
