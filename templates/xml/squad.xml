@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE squad SYSTEM "static/squad.dtd">
+<squad nick="{{ app.config['SQUAD_NICK'] }}">
+    <name>{{ app.config['SQUAD_NAME'] }}</name>
+    <email>{{ app.config['SQUAD_EMAIL'] }}</email>
+    <web>{{ app.config['SQUAD_WEB'] }}</web>
+    <picture>{{ app.config['SQUAD_PICTURE'] }}</picture>
+    <title>{{ app.config['SQUAD_TITLE'] }}</title>
+    {% for people in data %}
+    <member id="{{ people.player_id }}" nick="{{ people.nick }}">
+        <name>{{ people.name }}</name>
+        <email>{{ people.email }}</email>
+        <icq>{{ people.icq }}</icq>
+        <remark>{{ people.remark }}</remark>
+    </member>
+    {% endfor %}
+</squad>
