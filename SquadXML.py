@@ -58,7 +58,7 @@ class Admins(db.Model):
 
 
 # NO FLASK-LOGIN AND ADMIN SHIT IN THIS CLASS GOD DAMNIT
-class User(db.Model):
+class Members(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.Integer)
@@ -72,18 +72,18 @@ class User(db.Model):
 # Define login forms
 class LoginForm(form.Form):
 
-    login = fields.StringField(validators=[validators.required()])
-    password = fields.PasswordField(validators=[validators.required()])
+    login = fields.StringField(u'Username:', validators=[validators.required()])
+    password = fields.PasswordField(u'Password:', validators=[validators.required()])
 
     def validate_login(self, field):
         user = self.get_user()
 
         if user is None:
-            raise validators.ValidationError('Invalid User')
+            raise validators.ValidationError(u'Invalid User')
 
         # compare plaintext to hashed version
         if not check_password_hash(user.password, self.password.data):
-            raise validators.ValidationError('Invalid Password')
+            raise validators.ValidationError(u'Invalid Password')
 
     def get_user(self):
         return db.session.query(Admins).filter_by(login=self.login.data).first()
@@ -175,7 +175,7 @@ admin = admin.Admin(app,
                     )
 
 admin.add_view(MyModelView(Admins, db.session))
-admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Members, db.session))
 
 
 # TODO: Remove this before production
@@ -188,7 +188,7 @@ def build_sample_db():
     db.create_all()
     # passwords are hashed, to use plaintext passwords instead:
     # test_user = User(login="test", password="test")
-    test_user = Admins(login="test", password=generate_password_hash("test"))
+    test_user = Admins(login='test', password=generate_password_hash('test'))
     db.session.add(test_user)
 
     name = [
@@ -203,7 +203,7 @@ def build_sample_db():
     ]
 
     for i in range(len(name)):
-        user = User()
+        user = Members()
         user.name = name[i]
         user.nick = nick[i]
         db.session.add(user)
