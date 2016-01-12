@@ -11,5 +11,6 @@ Squad XML is a Flask framework written for ArmA 3 communities to use to manage S
 * Run pip -r requirements.txt
 * Configure the app in config.py to your squad
 * Set up uwsgi with nginx/apache2
+    * Default port is 5555
 * ???
 * Profit
