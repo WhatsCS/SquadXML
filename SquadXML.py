@@ -146,7 +146,7 @@ def index():
 
 @app.route('/squad/squad.xml')
 def xml():
-    data = db.session.query(User).all()
+    data = db.session.query(Members).all()
     squad_xml = render_template('xml/squad.xml', app=app, data=data)
     response = make_response(squad_xml)
     response.headers["Content-Type"] = "application/xml"
