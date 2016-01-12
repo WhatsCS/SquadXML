@@ -2,7 +2,7 @@
 SECRET_KEY = '123456789'
 
 # Create in-memory database
-DATABASE_FILE = 'sample_db.sqlite'
+DATABASE_FILE = 'squad_db.sqlite' # Rename to <name>.sqlite
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_FILE
 SQLALCHEMY_ECHO = True
 SQLALCHEMY_TRACK_MODIFICATIONS = True
