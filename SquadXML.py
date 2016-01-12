@@ -31,7 +31,6 @@ app.config.from_pyfile('config.py')
 
 db = SQLAlchemy(app)
 
-
 # PUT ADMIN STUFF IN HERE, IS ADMIN TABLE MAGIC
 class Admins(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -234,4 +233,4 @@ if __name__ == '__main__':
     if not os.path.exists(database_path):
         build_sample_db()
 
-    app.run(debug=True)
+    app.run()
