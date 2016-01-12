@@ -2,16 +2,7 @@
 SquadXML is a project that will be generating a squad xml with some custumization for community name. Users will also
 be able to add in users and delete users.
 
-1. Create ability to edit a simple config file
-2. Add MySQL database configuration options
-3. Add community name option
-4. Create ability to add and remove users: email, username, etc.
-5. Creation of users is on main website (not allowed to log in as they aren't "real users"
-6. Create Admin pages
-7. Create single use user that is_admin and allow other users in the database to become one as well.
-8. Generate required XML file and what not from the database
-9. Publish under /squad/squad.xml;/squad/squad.dtd
-10. If I have time and aren't a lazy bum I'll make a restful api but atm idgaf
+Created by WhatsCS of the 32nd Ranger Battalion: http://32ndrangerbattalion.com
 """
 import os
 import flask_login as login
