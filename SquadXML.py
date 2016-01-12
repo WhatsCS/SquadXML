@@ -65,7 +65,7 @@ class Admins(db.Model):
 
 
 # NO FLASK-LOGIN AND ADMIN SHIT IN THIS CLASS GOD DAMNIT
-class Members(db.Model):
+class Personnel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     player_id = db.Column(db.Integer)
@@ -169,12 +169,24 @@ def index():
 
 @app.route('/squad/squad.xml')
 def xml():
-    data = db.session.query(Members).all()
+    data = db.session.query(Personnel).all()
     squad_xml = render_template('xml/squad.xml', app=app, data=data)
     response = make_response(squad_xml)
     response.headers["Content-Type"] = "application/xml"
 
     return response
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html',
+                           title='404'), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html',
+                           title='500'), 500
 
 
 
@@ -198,7 +210,7 @@ admin = admin.Admin(app,
                     )
 
 admin.add_view(AdminModelView(Admins, db.session))
-admin.add_view(UserModelView(Members, db.session))
+admin.add_view(UserModelView(Personnel, db.session))
 
 
 # TODO: Remove this before production
@@ -209,28 +221,8 @@ def build_sample_db():
 
     db.drop_all()
     db.create_all()
-    # passwords are hashed, to use plaintext passwords instead:
-    # test_user = User(login="test", password="test")
-    test_user = Admins(login='test', password='test')
+    test_user = Admins(login='admin', password='password')
     db.session.add(test_user)
-
-    name = [
-        'Harry', 'Amelia', 'Oliver', 'Jack', 'Isabella', 'Charlie','Sophie', 'Mia',
-        'Jacob', 'Thomas', 'Emily', 'Lily', 'Ava', 'Isla', 'Alfie', 'Olivia', 'Jessica',
-        'Riley', 'William', 'James', 'Geoffrey', 'Lisa', 'Benjamin', 'Stacey', 'Lucy'
-    ]
-    nick = [
-        'Brown', 'Smith', 'Patel', 'Jones', 'Williams', 'Johnson', 'Taylor', 'Thomas',
-        'Roberts', 'Khan', 'Lewis', 'Jackson', 'Clarke', 'James', 'Phillips', 'Wilson',
-        'Ali', 'Mason', 'Mitchell', 'Rose', 'Davis', 'Davies', 'Rodriguez', 'Cox', 'Alexander'
-    ]
-
-    for i in range(len(name)):
-        user = Members()
-        user.name = name[i]
-        user.nick = nick[i]
-        db.session.add(user)
-
     db.session.commit()
     return
 
