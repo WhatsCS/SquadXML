@@ -7,7 +7,7 @@ Created by WhatsCS of the 32nd Ranger Battalion: http://32ndrangerbattalion.com
 import os
 import flask_login as login
 import flask_admin as admin
-from flask import Flask, url_for, redirect, render_template, request, make_response
+from flask import Flask, url_for, redirect, render_template, request, make_response, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import generate_password_hash, check_password_hash
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -165,6 +165,11 @@ def xml():
     response.headers["Content-Type"] = "application/xml"
 
     return response
+
+
+@app.route('/squad/<path:path>')
+def send_squad_pic():
+    return send_from_directory(app.config['SQUAD_PICTURE'])
 
 
 @app.errorhandler(404)
