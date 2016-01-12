@@ -99,11 +99,11 @@ docs/_build/
  
 # PyBuilder
 target/
- 
-# Ignore default django sqlite thing
-db.sqlite3
- 
+
 SquadXML/settings_*
 
 # Ignore sqlite
 *.sqlite
+
+# Ignore Images
+*.paa
