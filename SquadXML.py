@@ -14,14 +14,13 @@ be able to add in users and delete users.
 10. If I have time and aren't a lazy bum I'll make a restful api but atm idgaf
 """
 import os
+import flask_login as login
+import flask_admin as admin
 from flask import Flask, url_for, redirect, render_template, request, make_response
 from flask_sqlalchemy import SQLAlchemy
-import flask_login as login
-
+from flask_bcrypt import generate_password_hash, check_password_hash
+from sqlalchemy.ext.hybrid import hybrid_property
 from wtforms import form, fields, validators
-from werkzeug.security import generate_password_hash, check_password_hash
-
-import flask_admin as admin
 from flask_admin import helpers, expose
 from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
@@ -37,7 +36,15 @@ db = SQLAlchemy(app)
 class Admins(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    _password = db.Column(db.String(128))
+
+    @hybrid_property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def _set_password(self, plaintext):
+        self._password = generate_password_hash(plaintext)
 
     # Flask-Login integration
     def is_authenticated(self):
@@ -100,15 +107,31 @@ def init_login():
         return db.session.query(Admins).get(user_id)
 
 
-# Create customized model view class
-class MyModelView(sqla.ModelView):
+# Create customized Admin Model view class
+class AdminModelView(sqla.ModelView):
+
+    def scaffold_form(self):
+        form_class = super(AdminModelView, self).scaffold_form()
+        form_class.password = fields.PasswordField(u'Password')
+        return form_class
 
     def is_accessible(self):
         return login.current_user.is_authenticated
 
     def inaccessible_callback(self, name, **kwargs):
         # redirect to login page if user doesn't have access
-        return redirect(url_for('login', next=request.url))
+        return redirect(url_for('.login_view', next=request.url))
+
+
+# Create customized model view class
+class UserModelView(sqla.ModelView):
+
+    def is_accessible(self):
+        return login.current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        # redirect to login page if user doesn't have access
+        return redirect(url_for('.login_view', next=request.url))
 
 
 # Create the index view on admin for login
@@ -174,8 +197,8 @@ admin = admin.Admin(app,
                     template_mode='bootstrap3'
                     )
 
-admin.add_view(MyModelView(Admins, db.session))
-admin.add_view(MyModelView(Members, db.session))
+admin.add_view(AdminModelView(Admins, db.session))
+admin.add_view(UserModelView(Members, db.session))
 
 
 # TODO: Remove this before production
@@ -188,7 +211,7 @@ def build_sample_db():
     db.create_all()
     # passwords are hashed, to use plaintext passwords instead:
     # test_user = User(login="test", password="test")
-    test_user = Admins(login='test', password=generate_password_hash('test'))
+    test_user = Admins(login='test', password='test')
     db.session.add(test_user)
 
     name = [
