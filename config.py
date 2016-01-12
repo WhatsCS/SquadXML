@@ -1,8 +1,11 @@
-# Create dummy key for now
+# Flask specific settings
+DEBUG = True
+
+# Secret key https://gist.github.com/geoffalday/2021517
 SECRET_KEY = '123456789'
 
 # Create in-memory database
-DATABASE_FILE = 'squad_db.sqlite' # Rename to <name>.sqlite
+DATABASE_FILE = 'squad_db.sqlite'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_FILE
 SQLALCHEMY_ECHO = True
 SQLALCHEMY_TRACK_MODIFICATIONS = True
