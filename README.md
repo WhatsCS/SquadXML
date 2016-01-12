@@ -4,8 +4,12 @@ Squad XML is a Flask framework written for ArmA 3 communities to use to manage S
 ## Requirements
 * Python 2.7.X
 * Flask
-* SQLite (should be built in, get build-essentials if on debian or other operating system equivalent)
+* SQLite
 * nginx/apache2
 
 ## Installation
-* run setup.py
+* Run pip -r requirements.txt
+* Configure the app in config.py to your squad
+* Set up uwsgi with nginx/apache2
+* ???
+* Profit
