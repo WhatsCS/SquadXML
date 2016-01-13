@@ -19,6 +19,7 @@ from flask_admin.contrib.sqla import ModelView
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
+app.config['PIC_DIR'] = 'templates/xml'
 
 db = SQLAlchemy(app)
 
@@ -167,9 +168,9 @@ def xml():
     return response
 
 
-@app.route('/squad/<path:path>')
-def send_squad_pic():
-    return send_from_directory(app.config['SQUAD_PICTURE'])
+@app.route('/squad/<path:filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['PIC_DIR'], filename)
 
 
 @app.errorhandler(404)
