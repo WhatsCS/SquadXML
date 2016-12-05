@@ -1,0 +1,34 @@
+{% extends 'squad_master.html' %}
+{% block body %}
+    {{ super() }}
+    <div class="jumbotron">
+        <div class="container text-center">
+            {% if current_user.is_authenticated %}
+                <h1>SquadXML Admin Page</h1>
+                <p>
+                    Welcome to the admin page of SquadXML, here you can modify any user you wish.
+                </p>
+            {% else %}
+                <h1>Admin Login</h1>
+                <form method="POST">
+                    {{ form.hidden_tag() if form.hidden_tag }}
+                    {% for f in form if f.type != 'CSRFTokenField' %}
+                        <div class="form-group">
+                            {{ f.label }}
+                            {{ f }}
+                            {% if f.errors %}
+                                <ul>
+                                    {% for e in f.errors %}
+                                        <li>{{ e }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-default" type="submit">Sign in</button>
+                </form>
+                {{ link | safe }}
+            {% endif %}
+        </div>
+    </div>
+{% endblock body %}

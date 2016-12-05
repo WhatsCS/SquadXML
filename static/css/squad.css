@@ -1,0 +1,10 @@
+.nav>li>a {
+    padding: 20px 15px;
+}
+.nav-stacked>li+li{
+    margin-top: 0px;
+}
+
+div#concontainer{
+    padding-left: 20%;
+}
